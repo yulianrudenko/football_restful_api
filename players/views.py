@@ -17,14 +17,15 @@ from .selectors import (
     get_club,
     get_player
 )
+from . import validators
 
 
 class ClubListView(APIView):
     class ClubCreateSerializer(serializers.Serializer):
         title = serializers.CharField(
-            validators=[UniqueValidator(queryset=Club.objects.all())],
+            validators=[validators.name_validator, UniqueValidator(queryset=Club.objects.all())],
             required=True)
-        country = serializers.CharField(required=True)
+        country = serializers.CharField(required=True, validators=[validators.name_validator])
 
     def get(self, request):
         clubs_qs = Club.objects.all()
@@ -41,8 +42,8 @@ class ClubListView(APIView):
 
 class ClubDetailView(APIView):
     class ClubUpdateSerializer(serializers.Serializer):
-        title = serializers.CharField(required=False)
-        country = serializers.CharField(required=False)
+        title = serializers.CharField(required=False, validators=[validators.name_validator])
+        country = serializers.CharField(required=False, validators=[validators.name_validator])
 
     def get(self, request, club_id: int):
         club_qs = get_club(id=club_id)
@@ -64,10 +65,10 @@ class ClubDetailView(APIView):
 
 class PlayerListView(APIView):
     class PlayerCreateSerializer(serializers.Serializer):
-        first_name = serializers.CharField(required=True)
-        last_name = serializers.CharField(required=True)
+        first_name = serializers.CharField(required=True, validators=[validators.name_validator])
+        last_name = serializers.CharField(required=True, validators=[validators.name_validator])
         age = serializers.IntegerField(required=True)
-        club = serializers.ChoiceField(choices=Club.objects.all(), required=True)
+        club_id = serializers.IntegerField(required=True)
 
     def get(self, request):
         players_qs = Player.objects.all().select_related('club')
@@ -84,10 +85,10 @@ class PlayerListView(APIView):
 
 class PlayerDetailView(APIView):
     class PlayerUpdateSerializer(serializers.Serializer):
-        first_name = serializers.CharField(required=False)
-        last_name = serializers.CharField(required=False)
+        first_name = serializers.CharField(required=False, validators=[validators.name_validator])
+        last_name = serializers.CharField(required=False, validators=[validators.name_validator])
         age = serializers.IntegerField(required=False)
-        club = serializers.IntegerField(required=False)
+        club_id = serializers.IntegerField(required=False)
 
     def get(self, request, player_id: int):
         player_qs = Player.objects.get(id=player_id)
