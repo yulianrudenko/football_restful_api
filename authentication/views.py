@@ -1,31 +1,37 @@
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.shortcuts import render, redirect
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
 
 from authentication.models import User
 
-
-def login_user(request):
-    if request.method == 'POST':
-        data = request.POST
-        email = data.get('email')
-        password = data.get('password')
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            messages.error(request, 'Wrong email')
-        user = authenticate(username=email, password=password)
-        if user is not None:
-            messages.success(request, 'Logged in as ' + user.email)
-            login(request, user)
-            return redirect('home')
-        else:
-            messages.error(request, 'Wrong password')
-    return render(request, 'login.html')
+from .serializers import RegisterSerializer
+from .services import send_activation_email
 
 
-def logout_user(request):
-    if request.user.is_authenticated:
-        logout(request)
-        return redirect('auth:login')
-    return redirect('home')
+class RegisterView(APIView):
+    def post(self, request):
+        # validate data and create new user instance
+        serializer = RegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_user_data = serializer.data
+        new_user = User.objects.create(**new_user_data)
+
+        # prepare body with activation link(containing acccess token) for an activation email
+        access_token = RefreshToken.for_user(new_user).access_token
+        domain = get_current_site(request).domain
+        email_verify_path = reverse('auth:email_verify')
+        link = f'{request.scheme}://{domain}{email_verify_path}?token={str(access_token)}'
+        email_body = f'Hi, {new_user.username}! Use link below to verify your email.\n{link}'
+
+        send_activation_email(subject='Verify your email', body=email_body, to=new_user.email)
+
+        return Response(new_user_data, status=status.HTTP_201_CREATED)
+
+
+class VerifyEmailView(APIView):
+    def get(self, request):
+        pass
+    

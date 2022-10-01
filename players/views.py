@@ -17,7 +17,7 @@ from .selectors import (
     get_club,
     get_player
 )
-from . import validators
+from core import validators
 
 
 class ClubListView(APIView):
