@@ -6,6 +6,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SITE_DOMAIN = 'localhost:8000'
 SECRET_KEY = 'django-insecure-rjati!s3de7$c$we=+(0-do48g$_fol$-u2+y78hx9s(432rvw'
 
 DEBUG = True

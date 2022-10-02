@@ -1,6 +1,14 @@
-from django.core.mail import EmailMessage
-from django.conf import settings
+from django.db import transaction
 
-def send_activation_email(subject, body, to):
-    email = EmailMessage(subject, body, from_email=settings.EMAIL_FROM_USER, to=[to])
-    email.send()
+from .models import User
+from .utlis import send_activation_email
+
+
+@transaction.atomic
+def create_user(*, email: str, username: str) -> User:
+    new_user = User.objects.create(
+        email=email,
+        username=username
+    )
+    send_activation_email(to_user=new_user)
+    return new_user

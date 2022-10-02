@@ -34,9 +34,10 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=False, blank=False)
     username = models.CharField(max_length=55, unique=True, null=False, blank=False)
-    is_staff = models.BooleanField(default=False)
     auth_provider = models.CharField(choices=AUTH_PROVIDERS_CHOICES, max_length=20, null=False, default='email')
     created_at = models.DateTimeField(auto_now_add=True)
+    is_staff = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'password']
