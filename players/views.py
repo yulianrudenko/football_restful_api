@@ -21,7 +21,7 @@ from core import validators
 
 
 class ClubListView(APIView):
-    class ClubCreateSerializer(serializers.Serializer):
+    class InputSerializer(serializers.Serializer):
         title = serializers.CharField(
             validators=[validators.name_validator, UniqueValidator(queryset=Club.objects.all())],
             required=True)
@@ -33,7 +33,7 @@ class ClubListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.ClubCreateSerializer(data=request.data)
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_club = create_club(**serializer.validated_data)
         serializer = ClubSerializer(new_club)
@@ -41,7 +41,7 @@ class ClubListView(APIView):
 
 
 class ClubDetailView(APIView):
-    class ClubUpdateSerializer(serializers.Serializer):
+    class InputSerializer(serializers.Serializer):
         title = serializers.CharField(required=False, validators=[validators.name_validator])
         country = serializers.CharField(required=False, validators=[validators.name_validator])
 
@@ -51,7 +51,7 @@ class ClubDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, club_id: int):
-        serializer = self.ClubUpdateSerializer(data=request.data)
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         updated_club = update_club(club_id=club_id, **serializer.validated_data)
         serializer = ClubSerializer(updated_club)
@@ -64,7 +64,7 @@ class ClubDetailView(APIView):
 
 
 class PlayerListView(APIView):
-    class PlayerCreateSerializer(serializers.Serializer):
+    class InputSerializer(serializers.Serializer):
         first_name = serializers.CharField(required=True, validators=[validators.name_validator])
         last_name = serializers.CharField(required=True, validators=[validators.name_validator])
         age = serializers.IntegerField(required=True)
@@ -76,7 +76,7 @@ class PlayerListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.PlayerCreateSerializer(data=request.data)
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         new_player = create_player(**serializer.validated_data)
         serializer = PlayerSerializer(new_player)
@@ -84,7 +84,7 @@ class PlayerListView(APIView):
 
 
 class PlayerDetailView(APIView):
-    class PlayerUpdateSerializer(serializers.Serializer):
+    class InputSerializer(serializers.Serializer):
         first_name = serializers.CharField(required=False, validators=[validators.name_validator])
         last_name = serializers.CharField(required=False, validators=[validators.name_validator])
         age = serializers.IntegerField(required=False)
@@ -96,7 +96,7 @@ class PlayerDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, player_id: int):
-        serializer = self.PlayerUpdateSerializer(data=request.data)
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         player = update_player(player_id=player_id, **serializer.validated_data)
         serializer = PlayerSerializer(player)

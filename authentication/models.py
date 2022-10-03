@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -11,12 +12,12 @@ AUTH_PROVIDERS_CHOICES = (
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password=None, **kwargs):
         if username is None:
             raise TypeError('Users should have a username')
         if email is None:
             raise TypeError('Users should have a Email')
-        user = self.model(username=username, email=self.normalize_email(email))
+        user = self.model(username=username, email=self.normalize_email(email), **kwargs)
         user.set_password(password)
         user.save()
         return user
@@ -51,6 +52,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         if not len(self.password) > 5:
             raise ValidationError({'password': "Password should be at least 6 characters length."})
 
-    def tokens(self):
+    def get_tokens(self) -> dict:
         refresh = RefreshToken.for_user(self)
-        return {'refresh': str(refresh), 'access': str(refresh.access_token)}
+        return {
+            'refresh_token': str(refresh),
+            'access_token': str(refresh.access_token)
+        }
