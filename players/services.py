@@ -19,16 +19,14 @@ def update_club(club_id, **data) -> Club:
 
 
 def create_player(**data) -> Player:
-    club_id = data.pop('club_id')
-    club = get_club(id=club_id)
+    club = get_club(id=data.pop('club_id'))
     new_player = Player.objects.create(**data, club=club)
     return new_player
 
 
 def update_player(player_id, **data) -> Player:
     player = get_player(id=player_id)
-    club_id = data.pop('club_id')
-    player.club = get_club(id=club_id)
+    player.club = get_club(id=data.pop('club_id'))
 
     for attr in data:
         setattr(player, attr, data[attr])
