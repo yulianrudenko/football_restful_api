@@ -1,6 +1,6 @@
 import jwt
 
-from core.views import APIView
+from core.custom import APIView
 from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
@@ -10,7 +10,6 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from .models import User
-# from .serializers import RegisterSerializer
 from .services import create_user, verify_token, login_user
 
 
@@ -68,7 +67,6 @@ class LoginView(APIView):
     permission_classes = []
 
     def post(self, request):
-        print(request.data)
         serializer = self.input_serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = login_user(**serializer.validated_data)

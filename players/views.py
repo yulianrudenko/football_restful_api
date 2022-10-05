@@ -1,4 +1,4 @@
-from core.views import APIView
+from core.custom import APIView, paginate_by_page_number
 from core import validators
 
 from rest_framework import serializers
@@ -32,7 +32,8 @@ class ClubListView(APIView):
 
     def get(self, request):
         clubs_qs = Club.objects.all()
-        serializer = ClubSerializer(clubs_qs, many=True)
+        page = paginate_by_page_number(qs=clubs_qs, request=request)
+        serializer = ClubSerializer(page, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -79,7 +80,8 @@ class PlayerListView(APIView):
 
     def get(self, request):
         players_qs = Player.objects.all().select_related('club')
-        serializer = PlayerSerializer(players_qs, many=True)
+        page = paginate_by_page_number(qs=players_qs, request=request)
+        serializer = PlayerSerializer(page, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
