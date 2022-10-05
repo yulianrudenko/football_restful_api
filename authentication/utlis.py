@@ -1,7 +1,12 @@
 from django.conf import settings
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib import auth
 from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.utils.timezone import timedelta
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import smart_str, smart_bytes, force_str, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
@@ -22,3 +27,19 @@ def send_activation_email(*, to_user: User) -> None:
     body = f'Hi, {to_user.username}! Use link below to verify your email.\n{link}'
     email = EmailMessage(subject, body, from_email=settings.EMAIL_FROM_USER, to=[to_user])
     email.send()
+
+
+def login_user(*, email: str, password: str) -> User:
+    '''authenticate user if success return user instance'''
+    user = auth.authenticate(email=email, password=password)
+    if not user:
+        raise AuthenticationFailed(detail='Invalid credentials')
+    if not user.is_verified:
+        raise AuthenticationFailed(detail='Email is not verified')
+    if not user.is_active:
+        raise AuthenticationFailed(detail='Account is not active, contact admin')
+    return user
+
+
+def send_password_reset_email(*, to_email: str) -> None:
+    pass
