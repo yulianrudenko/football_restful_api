@@ -10,10 +10,12 @@ from drf_yasg import openapi
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
-    PasswordResetSerializer
+    RequestPasswordResetSerializer,
+    PerformPasswordResetSerializer
 )
-from .services import verify_token
-from .utlis import login_user
+from .services import activate_user_by_token
+from .selectors import get_user
+from .utlis import login_user, send_password_reset_email, validate_password_reset_token
 
 
 class RegisterView(APIView):
@@ -36,7 +38,7 @@ class VerifyEmailView(APIView):
     def get(self, request):
         token = request.GET.get('token')
         try:
-            verify_token(token=token)           
+            activate_user_by_token(token=token)           
             return Response({'email': 'Successfully verified'}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError:
             return Response({'error': 'Activation link expired'}, status=status.HTTP_400_BAD_REQUEST) 
@@ -61,8 +63,42 @@ class LoginView(APIView):
 
 
 class RequestPasswordResetView(APIView):
-    serializer_class = PasswordResetSerializer
+    '''Sends link for password reset to existing user's email'''
+    serializer_class = RequestPasswordResetSerializer
 
-    def post(self, reqeust):
-        serializer = self.serializer_class(data=reqeust.data)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data.get('email')
+        user = get_user(email=email)
+        send_password_reset_email(to_user=user)
+        return Response({'success': f'Email with link to reset password sent to {user.email}'},
+            status=status.HTTP_200_OK)
+
+
+class TokenCheckPasswordResetView(APIView):
+    '''
+    Decode userId and check token, then return them back
+    '''
+    def get(self, request, uidb64, token):
+        if validate_password_reset_token(uidb64=uidb64, token=token):
+            return Response({'uidb64': uidb64, 'token': token}, status=status.HTTP_200_OK)
+
+
+class PerformPasswordResetSerializer(APIView):
+    '''
+    Again decode userId and Check token
+    Perform password update with the one entered by user  
+    '''
+    serializer_class = PerformPasswordResetSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        password = serializer.validated_data.get('password')
+        uidb64 = serializer.validated_data.get('uidb64')
+        token = serializer.validated_data.get('token')
+        user = validate_password_reset_token(uidb64=uidb64, token=token)
+        user.set_password(password)
+        user.save()
+        return Response({'success': f'Updated password for {user.username}'}, status=status.HTTP_200_OK)
