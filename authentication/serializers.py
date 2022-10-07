@@ -2,7 +2,6 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from .models import User
-from .services import create_user
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -22,10 +21,8 @@ class RegisterSerializer(serializers.Serializer):
         username = attrs.get('username')
         if not username.isalnum():
             raise serializers.ValidationError('Only letters and numbers are allowed for username.')
+        attrs['username'] = username.lower()
         return super().validate(attrs) 
-    
-    def create(self, validated_data):
-        return create_user(**validated_data)
 
 
 class LoginSerializer(serializers.Serializer):

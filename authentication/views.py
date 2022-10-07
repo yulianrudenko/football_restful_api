@@ -13,7 +13,8 @@ from .serializers import (
     RequestPasswordResetSerializer,
     PerformPasswordResetSerializer
 )
-from .services import activate_user_by_token
+from .services import create_user, activate_user_by_token
+
 from .selectors import get_user
 from .utlis import login_user, send_password_reset_email, validate_password_reset_token
 
@@ -26,7 +27,7 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        create_user(**serializer.validated_data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -72,7 +73,7 @@ class RequestPasswordResetView(APIView):
         email = serializer.validated_data.get('email')
         user = get_user(email=email)
         send_password_reset_email(to_user=user)
-        return Response({'success': f'Email with link to reset password sent to {user.email}'},
+        return Response({'success': f'Email with link to reset password was sent to {user.email}'},
             status=status.HTTP_200_OK)
 
 

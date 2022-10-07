@@ -3,11 +3,11 @@ from django.contrib import auth
 from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.utils.timezone import timedelta
-from django.utils.encoding import smart_str, smart_bytes, force_str, DjangoUnicodeDecodeError
+from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
-from rest_framework.exceptions import AuthenticationFailed, ParseError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError, ParseError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
@@ -31,7 +31,7 @@ def login_user(*, email: str, password: str) -> User:
 
 
 def send_activation_email(*, to_user: User) -> None:
-    '''Send an activation link to new user's email'''
+    '''Send an activation link to new user's email. Generally used by services.create_user()'''
     
     # prepare body with activation link(containing acccess token)
     email_verify_path = reverse('auth:email_verify')
@@ -65,8 +65,8 @@ def validate_password_reset_token(uidb64: str, token: str) -> User:
     try:
         user_id = smart_str(urlsafe_base64_decode(uidb64))
     except DjangoUnicodeDecodeError:
-        raise ParseError(detail='Invalid token')
+        raise ParseError(detail={'id': 'Failed to decode user id'})
     user = get_user(id=user_id)
     if not PasswordResetTokenGenerator().check_token(user=user, token=token):
-        raise ParseError(detail='Invalid token')
+        raise ValidationError(detail={'token': 'Invalid token'})
     return user
