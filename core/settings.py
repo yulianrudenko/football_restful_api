@@ -101,7 +101,7 @@ CORS_ALLOWED_ORIGINS = [
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'core.permissions.IsAuthenticatedOrReadOnly',
+        'core.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',

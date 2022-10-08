@@ -10,21 +10,25 @@ from .utlis import send_activation_email
 
 
 @transaction.atomic
-def create_user(*, email: str, username: str, password: str) -> User:
+def user_create(*, email: str, username: str, password: str) -> User:
     new_user = User.objects.create_user(
         email=email,
         username=username,
         password=password,
-        is_verified=True)
+        is_verified=False)
     send_activation_email(to_user=new_user)
     return new_user
 
 
 @transaction.atomic
-def activate_user_by_token(*, token: str) -> bool:
-    '''verify token in order to "activate" newly registered user'''
+def user_activate_by_token(*, token: str) -> bool:
+    '''validate token in order to "verify" newly registered user'''
     try:
-        payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms='HS256')  # payload == данные или сообщения, передаваемые по сети 
+        payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms='HS256')  # payload=данные или сообщения, передаваемые по сети 
+    except jwt.ExpiredSignatureError:
+        raise ValidationError({'error': 'Activation link expired'}) 
+    except jwt.exceptions.DecodeError:
+        raise ValidationError({'error': 'Invalid token'}) 
     except:
         raise ValidationError(detail='Invalid token')
     user = get_user(id=payload['user_id'])

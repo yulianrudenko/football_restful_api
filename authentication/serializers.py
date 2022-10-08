@@ -20,7 +20,8 @@ class RegisterSerializer(serializers.Serializer):
         '''validate username'''
         username = attrs.get('username')
         if not username.isalnum():
-            raise serializers.ValidationError('Only letters and numbers are allowed for username.')
+            raise serializers.ValidationError(
+                {'username': 'Only letters and numbers are allowed for username.'})
         attrs['username'] = username.lower()
         return super().validate(attrs) 
 
@@ -37,6 +38,6 @@ class RequestPasswordResetSerializer(serializers.Serializer):
 
 class PerformPasswordResetSerializer(serializers.Serializer):
     '''serializer for new password given by user, encoded user_id and token itself'''
-    password = serializers.CharField(min_length=5, write_only=True)
+    new_password = serializers.CharField(min_length=5, write_only=True)
     uidb64 = serializers.CharField(min_length=1, write_only=True)
     token = serializers.CharField(min_length=1, write_only=True)

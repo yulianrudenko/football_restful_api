@@ -5,33 +5,33 @@ from faker.providers import profile
 
 from ..models import User
 
+# prepare Faker
+fake = Faker()
+fake.add_provider(profile.Provider)
 
-class TestSetUp(APITestCase):
+
+class AuthenticationTestSetUp(APITestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        # prepare Faker
-        self.fake = Faker()
-        self.fake.add_provider(profile.Provider)
-
         # create fake user ready for testing
-        self.user_data = self.fake_user_data()
+        self.user_data = self.__fake_user_data()
         self.user = User.objects.create_user(**self.user_data, is_verified=True)
 
         # prepare data for new user registration
-        self.new_user_data = self.fake_user_data()
+        self.new_user_data = self.__fake_user_data()
         self.register_url = reverse('auth:register')
 
     def tearDown(self) -> None:
         return super().tearDown()
 
-    def fake_user_data(self):
+    def __fake_user_data(self):
         '''Create a sample User'''
-        self.fake_profile = self.fake.simple_profile()
+        fake_profile = fake.simple_profile()
         user_data = {
-            'email': self.fake_profile['mail'],
-            'username': self.fake_profile['username'],
-            'password': self.fake.password()
+            'email': fake_profile['mail'],
+            'username': fake_profile['username'],
+            'password': fake.password()
         }
         return user_data
     

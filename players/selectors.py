@@ -5,7 +5,7 @@ from .models import Club, Player
 def get_club(id: int):
     club = Club.objects.filter(id=id)
     if not club:
-        raise NotFound(f'No club with id={id} found.')
+        raise NotFound(f'No club with id of {id} found.')
     return club[0]
 
 

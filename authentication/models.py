@@ -17,6 +17,8 @@ class UserManager(BaseUserManager):
             raise TypeError('Users should have a username')
         if email is None:
             raise TypeError('Users should have a Email')
+        if not len(password) > 5:
+            raise ValidationError({'password': "Password should be at least 6 characters length."})
         user = self.model(username=username, email=self.normalize_email(email), **kwargs)
         user.set_password(password)
         user.save()
@@ -52,9 +54,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
     
-    def clean(self):
-        if not len(self.password) > 5:
-            raise ValidationError({'password': "Password should be at least 6 characters length."})
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_tokens(self) -> dict:
         refresh = RefreshToken.for_user(self)

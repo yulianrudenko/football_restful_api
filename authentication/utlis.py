@@ -31,10 +31,10 @@ def login_user(*, email: str, password: str) -> User:
 
 
 def send_activation_email(*, to_user: User) -> None:
-    '''Send an activation link to new user's email. Generally used by services.create_user()'''
+    '''Send an activation link to new user's email. Generally used by services.user_create()'''
     
     # prepare body with activation link(containing acccess token)
-    email_verify_path = reverse('auth:email_verify')
+    email_verify_path = reverse('auth:email-verify')
     access_token = RefreshToken.for_user(to_user).access_token
     access_token.set_exp(lifetime=timedelta(hours=12))
     link = f'{PROTOCOL}://{DOMAIN}{email_verify_path}?token={str(access_token)}'
@@ -45,13 +45,14 @@ def send_activation_email(*, to_user: User) -> None:
     email.send()
 
 
-def send_password_reset_email(*, to_user: str) -> None:
+def send_password_reset_email(*, to_email: str) -> None:
     '''Send an password reset link to user's email'''
+    to_user = get_user(email=to_email)
     
     # prepare body with activation link(containing acccess token)
     uid64 = urlsafe_base64_encode(smart_bytes(to_user.id))
     token = PasswordResetTokenGenerator().make_token(user=to_user)
-    password_reset_path = reverse('auth:confirm_password_reset',
+    password_reset_path = reverse('auth:confirm-password-reset',
         kwargs={'uidb64': uid64, 'token': token})
     link = f'{PROTOCOL}://{DOMAIN}{password_reset_path}'
 

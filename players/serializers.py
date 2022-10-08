@@ -3,9 +3,6 @@ from rest_framework.validators import UniqueValidator
 from core import validators
 
 from .models import Club, Player
-from .selectors import (
-    get_club
-)
 
 
 class ClubSerializer(serializers.Serializer):
@@ -15,15 +12,14 @@ class ClubSerializer(serializers.Serializer):
     country = serializers.CharField(validators=[validators.name_validator])
 
     def create(self, validated_data):
-        new_club = Club.objects.create(**validated_data)
-        return new_club
+        return Club.objects.create(**validated_data)
 
     def update(self, club, validated_data):
-        if self.partial:  # calling from PATCH
+        if self.partial:    # calling from PATCH method
             for attr in validated_data:
                 setattr(club, attr, validated_data[attr])
 
-        else:  # calling from PUT
+        else:               # calling from PUT method
             club.title = validated_data.get('title')
             club.country = validated_data.get('country')
 
@@ -40,19 +36,19 @@ class PlayerSerializer(serializers.Serializer):
     age = serializers.IntegerField()
 
     def create(self, validated_data):
-        club = get_club(id=validated_data.get('club_id'))
-        new_player = Player.objects.create(**validated_data, club=club)
+        new_player = Player.objects.create(**validated_data)
         return new_player
 
     def update(self, player, validated_data):
-        if self.partial:  # calling from PATCH
+        if self.partial:  # calling from PATCH method
             for attr in validated_data:
                 setattr(player, attr, validated_data[attr])
 
-        else:  # calling from PUT
-            player.club = get_club(id=validated_data.get('club_id'))
+        else:  # calling from PUT method
+            player.club_id = validated_data.get('club_id')
             player.first_name = validated_data.get('first_name')
             player.last_name = validated_data.get('last_name')
             player.age = validated_data.get('age')
+
         player.save()
         return player

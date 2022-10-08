@@ -1,6 +1,6 @@
 from django.urls import reverse
 from django.core import mail
-from .setup import TestSetUp
+from .setup import AuthenticationTestSetUp
 
 
 def get_value_from_last_email(
@@ -19,7 +19,7 @@ def get_value_from_last_email(
     return values
 
 
-class TestRegisterView(TestSetUp):
+class TestRegisterView(AuthenticationTestSetUp):
     def setUp(self) -> None:
         self.url = reverse('auth:register')
         return super().setUp()
@@ -35,11 +35,11 @@ class TestRegisterView(TestSetUp):
         self.assertEqual(response.status_code, 400)
 
 
-class TestVerifyEmailView(TestSetUp):
+class TestVerifyEmailView(AuthenticationTestSetUp):
     def setUp(self) -> None:
         super().setUp()
         self.client.post(self.register_url, self.new_user_data)  # register user
-        self.url = reverse('auth:email_verify')
+        self.url = reverse('auth:email-verify')
 
     def test_verify_success(self):
         '''get token from sent email and send it to verify endpoint'''
@@ -49,7 +49,7 @@ class TestVerifyEmailView(TestSetUp):
         self.assertEqual(response.status_code, 200)
 
 
-class TestLoginView(TestSetUp):
+class TestLoginView(AuthenticationTestSetUp):
     def setUp(self) -> None:
         super().setUp()
         self.url = reverse('auth:login')
@@ -72,12 +72,12 @@ class TestLoginView(TestSetUp):
         self.assertEqual(data['detail'], 'Email is not verified')
 
 
-class TestPasswordResetViews(TestSetUp):
+class TestPasswordResetViews(AuthenticationTestSetUp):
     def test_password_reset_success(self):
         '''Test all 3 password-reset views'''
 
         # TEST REQUESTing password reset (RequestPasswordResetView)
-        response = self.client.post(reverse('auth:request_password_reset'),
+        response = self.client.post(reverse('auth:request-password-reset'),
             data={'email': self.user.email})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get('success'), 
@@ -86,7 +86,7 @@ class TestPasswordResetViews(TestSetUp):
         # TEST TOKEN VALIDATION for password reset (TokenCheckPasswordResetView)
         # prepare url with encoded data as GET query parameters 
         uidb64, token = get_value_from_last_email(separator='/', qty=2)
-        url = reverse('auth:confirm_password_reset',
+        url = reverse('auth:confirm-password-reset',
          kwargs={'uidb64': uidb64, 'token': token})         
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -94,11 +94,11 @@ class TestPasswordResetViews(TestSetUp):
         self.assertEqual(response.data.get('token'), token)
 
         # TEST PASSWORD RESET via previously received uidb64 and token (PerformPasswordResetSerializer)
-        response = self.client.post(reverse('auth:perform_password_reset'),
-            data={'password': 'newpassword', 'uidb64': uidb64, 'token': token})
+        response = self.client.post(reverse('auth:perform-password-reset'),
+            data={'new_password': 'newpassword', 'uidb64': uidb64, 'token': token})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get('success'), f'Updated password for {self.user.username}')
 
-        self.assertEqual(self.user.check_password('newpassword'), False)  # should be False because changes are not applied to DB yet
+        self.assertFalse(self.user.check_password('newpassword'))  # should be False because changes are not applied to DB yet
         self.user.refresh_from_db()
-        self.assertEqual(self.user.check_password('newpassword'), True)  # should be True after DB refresh
+        self.assertTrue(self.user.check_password('newpassword'))  # should be True after DB refresh
