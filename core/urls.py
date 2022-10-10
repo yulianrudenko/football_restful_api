@@ -21,6 +21,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('api/', include('players.urls', namespace='api')),
     path('auth/', include('authentication.urls', namespace='auth')),
+    path('chats/', include('chats.urls', namespace='chats')),
+
     path('admin/', admin.site.urls),
 
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

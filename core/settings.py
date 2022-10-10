@@ -23,10 +23,12 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+    'channels',
     'drf_yasg',
 
     'authentication',
-    'players'
+    'players',
+    'chats'
 ]
 
 MIDDLEWARE = [
@@ -59,7 +61,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
+ASGI_APPLICATION = 'core.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 AUTH_USER_MODEL = 'authentication.User'
 DATABASES = {
