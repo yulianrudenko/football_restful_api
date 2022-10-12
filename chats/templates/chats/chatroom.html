@@ -19,27 +19,28 @@
 		const msgSubmit = document.querySelector('#chat-message-submit');
 		const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
+    const authToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjY1NTEyNjc4LCJpYXQiOjE2NjU1MTIzNzgsImp0aSI6ImQwNjJlODUzMzk5NjQ3OTY4ZjJjODViZTY4NzAzOTAwIiwidXNlcl9pZCI6NjF9.ZoL_ignpQ9LkAreo2_efzMZX-8GsU_CPmMM7xltGHdk`;
+		const CHATSOCKET = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/?token=${authToken}`);
 
-		const CHATSOCKET = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-		CHATSOCKET.onmessage = function(e) {
+		CHATSOCKET.onmessage = (e) => {
 			const data = JSON.parse(e.data);
 			msgList.value += data.message + '\n';
 		};
 
-		CHATSOCKET.onclose = function(e) {
+		CHATSOCKET.onclose = (e) => {
 			window.alert('Chat socket closed unexpectedly');
 		};
 
 
 		msgInput.focus()
-		msgInput.onkeyup = function(e) {
+		msgInput.onkeyup = (e) => {
 			if (e.keyCode == 13) {
 				msgSubmit.click();
 			} 
 		};
 
 
-		msgSubmit.onclick = function(e) {
+		msgSubmit.onclick = (e) => {
 			const message = msgInput.value;
       if (message == '') return
 			CHATSOCKET.send(JSON.stringify({'message': message}));

@@ -46,6 +46,7 @@ class VerifyEmailView(APIView):
 
 class LoginView(APIView):
     '''Log in'''
+    authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
