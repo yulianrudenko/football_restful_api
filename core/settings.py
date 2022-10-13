@@ -97,14 +97,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 STATIC_URL = '/static/'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:550',
+    'http://localhost:5500',
     'http://127.0.0.1:5500',
 ]
 

@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.utils import timezone
 
 from authentication.models import User
 
@@ -19,13 +20,13 @@ class Message(models.Model):
     chat = models.ForeignKey(to=Chat, related_name='messages', on_delete=models.CASCADE)
     user = models.ForeignKey(to=User, related_name='messages', on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=325, blank=False)
-    date_sent = models.DateTimeField(auto_now_add=True, editable=False)
+    date_sent = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         ordering = ['date_sent', 'user']
 
     def __str__(self) -> str:
-        return 'Message by ' + self.user.email + ' at ' + self.date_sent.strftime("%H:%M:%S %y.%m.%d")
+        return 'Message by ' + self.user.email + ' at ' + self.date_sent.strftime('%H:%M:%S %y.%m.%d')
 
     def clean(self) -> None:
         if self.user not in self.chat.users.all():

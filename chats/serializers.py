@@ -3,8 +3,9 @@ from .models import Chat, Message
 
 
 class MessageSerializer(serializers.Serializer):
-    user = serializers.CharField()
+    user = serializers.CharField(source="user.username")
     text = serializers.CharField()
+    date_sent = serializers.DateTimeField(format='%H:%M:%S %y.%m.%d')
 
 
 class ChatSerializer(serializers.ModelSerializer):
