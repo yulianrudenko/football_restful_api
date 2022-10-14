@@ -43,7 +43,6 @@ class TestVerifyEmailView(AuthenticationTestSetUp):
 
     def test_verify_success(self):
         '''get token from sent email and send it to verify endpoint'''
-        # TODO ponyat`
         token = get_value_from_last_email(separator='?token=', qty=1)
         response = self.client.get(self.url, data={'token': token})
         self.assertEqual(response.status_code, 200)

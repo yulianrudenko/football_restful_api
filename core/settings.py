@@ -103,10 +103,11 @@ USE_L10N = True
 USE_TZ = False
 STATIC_URL = '/static/'
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-]
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:5500',
+#     'http://127.0.0.1:5500',
+# ]
 
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'error',
@@ -144,3 +145,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+FB_APP_ID = os.environ.get('APP_ID')
+FB_APP_SECRET = os.environ.get('APP_SECRET')
