@@ -146,5 +146,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-FB_APP_ID = os.environ.get('APP_ID')
-FB_APP_SECRET = os.environ.get('APP_SECRET')
+FB_APP_ID = os.environ.get('FB_APP_ID')
+FB_APP_SECRET = os.environ.get('FB_APP_SECRET')
+GOOGLE_APP_CLIENT_ID = os.environ.get('GOOGLE_APP_CLIENT_ID')
+GOOGLE_APP_CLIENT_SECRET = os.environ.get('GOOGLE_APP_CLIENT_SECRET')

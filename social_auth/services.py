@@ -7,7 +7,14 @@ from rest_framework.exceptions import AuthenticationFailed
 from authentication.models import User
 
 
-def generate_username(name):
+def generate_username(name: str):
+    if not name.isalnum():
+        new_name = ''
+        for char in name:
+            if char.isalnum():
+                new_name += char
+        name = new_name
+
     username = "".join(name.split(' ')).lower()
     if not User.objects.filter(username=username).exists():
         return username
@@ -19,7 +26,7 @@ def generate_username(name):
 @transaction.atomic
 def register_social_user(provider, email, name):
     filtered_user_by_email = User.objects.filter(email=email)
-    
+
     if filtered_user_by_email.exists():
         if provider == filtered_user_by_email[0].auth_provider:
             registered_user = authenticate(email=email, password=os.environ.get('SOCIAL_SECRET'))
@@ -33,12 +40,12 @@ def register_social_user(provider, email, name):
                 detail='Please continue your login using ' + filtered_user_by_email[0].auth_provider)
 
     else:
-        user = {
+        user_data = {
             'username': generate_username(name), 
             'email': email,
             'password': os.environ.get('SOCIAL_SECRET')
         }
-        user = User.objects.create_user(**user)
+        user = User.objects.create_user(**user_data)
         user.is_verified = True
         user.auth_provider = provider
         user.save()

@@ -6,19 +6,20 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 AUTH_PROVIDERS_CHOICES = (
-    ('fb', 'facebook'),
-    ('email', 'email'),
+    ('Facebook', 'Facebook'),
+    ('Google', 'Google'),
+    ('Email', 'Email'),
 )
 
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **kwargs):
         if username is None:
-            raise TypeError('Users should have a username')
+            raise TypeError('Users must have a username')
         if email is None:
-            raise TypeError('Users should have a Email')
+            raise TypeError('Users must have a Email')
         if not len(password) > 5:
-            raise ValidationError({'password': "Password should be at least 6 characters length."})
+            raise ValidationError({'password': "Password must be at least 6 characters length."})
         user = self.model(username=username, email=self.normalize_email(email), **kwargs)
         user.set_password(password)
         user.save()
@@ -26,7 +27,7 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username, email, password=None):
         if password is None:
-            raise TypeError('Password should not be none')
+            raise TypeError('Password must not be none')
         user = self.create_user(username, email, password)
         user.is_superuser = True
         user.is_staff = True
@@ -37,7 +38,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=False, blank=False)
     username = models.CharField(max_length=55, unique=True, null=False, blank=False)
-    auth_provider = models.CharField(choices=AUTH_PROVIDERS_CHOICES, max_length=20, null=False, default='email')
+    auth_provider = models.CharField(choices=AUTH_PROVIDERS_CHOICES, max_length=20, null=False, default='Email')
     created_at = models.DateTimeField(auto_now_add=True)
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)

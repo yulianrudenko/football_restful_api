@@ -8,7 +8,7 @@ from .models import Chat
 
 @transaction.atomic
 def start_chat(*, user1: User, user2: User) -> int:
-    '''Check if check already exists, if not -> create'''
+    '''Check if chat already exists, if not -> create'''
     if user1 == user2:
         raise ValidationError(detail='Impossible to create chat with 1 user')
 
