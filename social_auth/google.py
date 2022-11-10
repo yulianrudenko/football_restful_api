@@ -1,6 +1,9 @@
-import requests
 import jwt
+import requests
 
+from django.conf import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 from django.conf import settings
 
 
@@ -19,11 +22,15 @@ class Google:
                 'code': auth_token,
                 'client_id': settings.GOOGLE_APP_CLIENT_ID,
                 'client_secret': settings.GOOGLE_APP_CLIENT_SECRET,
-                'redirect_uri': 'http://localhost:5500/google.html'
+                'redirect_uri': 'http://localhost:5500/login.html'
             })
+            access_token = response.json().get('access_token')
+            headers = {"Authorization": f"Bearer {access_token}"}
+            response = requests.get(f'https://www.googleapis.com/oauth2/v1/userinfo?alt=json', headers=headers)
             data = response.json()
-            id_token = data['id_token']
-            decoded_user_data = jwt.decode(id_token, options={'verify_signature': False}) # works in PyJWT >= v2.0
-            return decoded_user_data
+            return data
+            # token = data['id_token']
+            # idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), settings.GOOGLE_APP_CLIENT_ID)
+            # return idinfo
         except:
-            return "The token is invalid or expired."
+            return 'The token is invalid or expired.'

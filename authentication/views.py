@@ -1,13 +1,14 @@
 import jwt
 
 from core.custom import APIView, CustomJSONRenderer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from .serializers import (
+    UserSerializer,
     RegisterSerializer,
     LoginSerializer,
     RequestPasswordResetSerializer,
@@ -19,8 +20,18 @@ from .selectors import get_user
 from .utlis import login_user, send_password_reset_email, validate_password_reset_token
 
 
+class UserInfo(APIView):
+    '''Retrieve data based on requesting user'''
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        serializer = UserSerializer(instance=request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class RegisterView(APIView):
     '''Register'''
+    authentication_classes = []
     permission_classes = [AllowAny]
     renderer_classes = [CustomJSONRenderer]
     serializer_class = RegisterSerializer

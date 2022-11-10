@@ -4,6 +4,17 @@ from rest_framework.validators import UniqueValidator
 from .models import User
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'email',
+            'username',
+            'auth_provider',
+            'created_at'
+        ]
+
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(
         validators=[UniqueValidator(User.objects.all(), message='User with provided email already exists.')])

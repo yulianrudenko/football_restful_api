@@ -7,6 +7,8 @@ from . import views
 app_name = 'auth'
 
 urlpatterns = [
+    path('me/', views.UserInfo.as_view(), name='me'),
+
     path('register/', views.RegisterView.as_view(), name='register'),
     path('register/email-verify/', views.VerifyEmailView.as_view(), name='email-verify'),
 

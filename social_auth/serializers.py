@@ -17,13 +17,13 @@ class FacebookSocialAuthSerializer(serializers.Serializer):
         try:
             email = user_data['email']
             name = user_data['name']
-            return register_social_user(
-                provider='Facebook',
-                email=email,
-                name=name)
-        except Exception:
+        except:
             raise serializers.ValidationError(
-                'The token  is invalid or expired. Please try again.')
+            'The token  is invalid or expired. Please try again.')
+        return register_social_user(
+            provider='Facebook',
+            email=email,
+            name=name)
 
 
 class GoogleSocialAuthSerializer(serializers.Serializer):
@@ -32,6 +32,7 @@ class GoogleSocialAuthSerializer(serializers.Serializer):
 
     def validate_auth_code(self, auth_code):
         user_data = google.Google.validate(auth_code)
+        print(user_data)
         try:
             email = user_data['email']
             name = email.split('@')[0]
